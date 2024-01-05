@@ -1,39 +1,37 @@
-#Create by BabyGuma
-
 import numpy as np
 import os
 import tensorflow as tf
 
-#dataset X con 200 valores
-X = np.linspace(-10, 10, 200)
+#  X  200 valores
+num_values = 200
+input_values = np.linspace(-10.0, 10.0, num_values)
 
-#fórmula y = 13x - 250
-Y = 13 * X - 250
+# Fórmula 
+output_values = 13 * input_values - 250 + np.random.normal(0, 5, len(input_values))
 
-#modelo
+# 700 epochs
 tf.keras.backend.clear_session()
-model_ec3 = tf.keras.models.Sequential([
+linear_model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(units=1, input_shape=[1], name='Single')
 ])
 
-model_ec3.compile(optimizer=tf.keras.optimizers.SGD(), loss=tf.keras.losses.mean_squared_error)
+linear_model.compile(optimizer=tf.keras.optimizers.SGD(), loss=tf.keras.losses.mean_squared_error)
+print(linear_model.summary())
 
-# 700 epochs
-model_ec3.fit(X, Y, epochs=700)
+num_epochs = 700
+linear_model.fit(input_values, output_values, epochs=num_epochs)
 
-# 18 va
-new_X_values = np.linspace(-10, 10, 18).reshape(-1, 1)
-predictions = model_ec3.predict(new_X_values)
-print("Predictions:")
-print(predictions)
+#  18 valores 
+test_input_values = np.linspace(-10.0, 10.0, 18).reshape((-1, 1))
+predictions = linear_model.predict(test_input_values).flatten()
+print("Predictions:", predictions)
 
-#Expo el  model_ec3
+#  modelo con el nombre asignado en modelname
 model_name = 'model_ec3'
-export_path = os.path.join('./', model_name)
-tf.saved_model.save(model_ec3, export_path)
-print(f"Modelo guardado en: {export_path}")
+export_path = f'./{model_name}/1/'
+tf.saved_model.save(linear_model, os.path.join('./', export_path))
 
-# W y b 
-model_weights = model_ec3.get_weights()
-W, b = model_weights[0][0, 0], model_weights[1][0]
-print(f"Pesos: W={W}, b={b}")
+# Extraer los pesos para W y b e imprimirlos
+weights, biases = linear_model.layers[0].get_weights()
+print(f"(W): {weights.flatten()[0]}")
+print(f"(b): {biases[0]}")
